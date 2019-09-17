@@ -1,0 +1,15 @@
+			#main_login{
+				position:fixed;
+				top:400px; 
+				left:800px;
+			}
+			#form_login{
+				padding:15px;
+				background-color:#ffe6e6;
+			}
+			#login_text{
+				color:#ffe6e6;
+			}
+			body{	
+				background-image:url("../img/dind_bg.jpg");				
+			}

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>
+	
+	<resultMap class="smsp.bean.Position" id="userResult">
+		<result property="positionId" column="position_id"/>
+		<result property="position" column="position"/>
+		<result property="positionDescription" column="position_description"/>
+	</resultMap>
+	
+	<select id="countPosition" parameterClass="string" resultClass="int">
+		SELECT count(*) FROM position where position LIKE '%$name$%'
+	</select>
+	
+	<select id="getPositionAll" resultMap="userResult">
+		SELECT * FROM position
+		ORDER BY position
+	</select>
+	
+	<select id="getPositionByName" parameterClass="hashmap" resultMap="userResult">
+		SELECT * FROM position WHERE position LIKE '%$name$%' ORDER BY position_id DESC
+		LIMIT #start#, #length#
+	</select>
+	
+	<select id="getPositionById" parameterClass="int" resultMap="userResult">
+		SELECT * FROM position WHERE position_id = #id#  
+	</select>
+	
+	<insert id="addPosition" parameterClass="hashmap">
+		INSERT INTO position VALUES (null,#posName#,#posDesc#)
+	</insert>
+	
+	<update id="updatePosition" parameterClass="hashmap">
+		UPDATE position SET position = #posName#, position_description = #posDesc# WHERE position_id = #posId#
+	</update>
+
+	<delete id="deletePosition" parameterClass="int">
+		DELETE FROM position WHERE position_id = #idPos#
+	</delete>
+
+</sqlMap>

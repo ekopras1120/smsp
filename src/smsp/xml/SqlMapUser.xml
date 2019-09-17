@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap>
+	<resultMap class="smsp.bean.User" id="userResult">
+		<result property="userId" column="user_id"/>
+		<result property="userName" column="username"/>
+		<result property="password" column="password"/>
+		<result property="email" column="email"/>
+		<result property="rule" column="rule"/>
+	</resultMap>
+
+	<select id="countUser" resultClass="int">
+		SELECT COUNT(user_id)
+		FROM user
+	</select>
+
+	<select id="getUser" parameterClass="hashmap" resultMap="userResult">
+		SELECT *
+		FROM user
+		ORDER BY user_id ASC
+		LIMIT #offset#, #limit#
+	</select>
+
+	<select id="getUserById" parameterClass="string" resultMap="userResult">
+		SELECT *
+		FROM user
+		WHERE user_id=#usr_id#
+	</select>
+
+	<select id="getUserForLogin" parameterClass="hashmap" resultMap="userResult">
+		SELECT *
+		FROM user
+		WHERE username like #uname# AND password like sha(#pwd#)
+		
+	</select>
+	
+	<insert id="insertUser" parameterClass="hashmap">
+		INSERT INTO user (username, password, email, rule)
+		VALUES (#name#, sha(#pwd#), #email#, #rule#)
+	</insert>
+	
+	<update id="updateUser" parameterClass="hashmap">
+		UPDATE user
+		SET username=#name#,
+			password=sha(#pwd#),
+			email=#email#,
+			rule=#rule#
+		WHERE user_id=#uid#
+	</update>
+	
+	<update id="updateUserNoPassword" parameterClass="hashmap">
+		UPDATE user
+		SET username=#name#,
+			email=#email#,
+			rule=#rule#
+		WHERE user_id=#uid#
+	</update>
+	
+	<update id="updateUserRule" parameterClass="hashmap">
+		UPDATE user
+		SET rule=#rule#
+		WHERE user_id=#uid#
+	</update>
+	
+	<delete id="deleteUser" parameterClass="string">
+		DELETE FROM user WHERE user_id=#userId#
+	</delete>
+</sqlMap>

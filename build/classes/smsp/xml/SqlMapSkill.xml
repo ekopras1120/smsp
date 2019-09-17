@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>	
+
+	<resultMap class="smsp.bean.Skill" id="userResult">
+		<result property="skillId" column="skill_id"/>
+		<result property="skillName" column="skill_name"/>
+	</resultMap>
+	
+	<select id="countSkill" parameterClass="string" resultClass="int">
+		SELECT count(*) FROM skill WHERE skill_name LIKE '%$name$%'
+	</select>
+	
+	<select id="getSkillAll" resultMap="userResult">
+		SELECT * FROM skill ORDER BY skill_id ASC
+	</select>
+	
+	<select id="getSkillByName" parameterClass="hashmap" resultMap="userResult">
+		SELECT * FROM skill WHERE skill_name LIKE '%$name$%' ORDER BY skill_id DESC
+		LIMIT #start#,#length#
+	</select>
+	
+	<select id="getSkillById" parameterClass="int" resultMap="userResult">
+		SELECT * FROM skill WHERE skill_id = #id#
+	</select>
+	
+	<insert id="addSkill" parameterClass="String">
+		INSERT INTO SKILL VALUES(null,#sklName#)
+	</insert>
+
+	<delete id="deleteSkill" parameterClass="int">
+		DELETE FROM SKILL WHERE skill_id=#sklId#
+	</delete>
+
+	<update id="updateSkill" parameterClass="hashmap">
+		UPDATE SKILL SET skill_name=#sklName# WHERE skill_id=#sklId#
+	</update>
+
+</sqlMap>

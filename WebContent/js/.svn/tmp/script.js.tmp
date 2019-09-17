@@ -1,0 +1,431 @@
+$(function() {
+	// START menubar functions
+	var submenu = null;
+
+	function openSubmenu() {
+		closeSubmenu();
+		submenu = $(this).find('ul');
+
+		if (submenu.size() > 0) {
+			submenu.slideDown('fast');
+		} else {
+			submenu = null;
+		}
+	}$(function() {
+		var timeout = 500;
+		var closetimer = 0;
+		var ddmenuitem = 0;
+
+		hideSidebar();
+		setTabbedForm();
+		setTabBinding();
+		document.onclick = jsddm_close;
+
+		// START menubar functions
+		$('#menubar>ul>li').bind('mouseover', jsddm_open);
+		$('#menubar>ul>li').bind('mouseout', jsddm_timer);
+		// END menubar function
+		
+		setModal();
+		
+		$('#menubar a').click(function() {
+			var wrapper = $('#main'),
+				current = $('#main>.ajax'),
+				currentH = current.height();
+			
+			$.ajax({
+				url: $(this).attr('href'),
+				beforeSend: function() {
+					wrapper.css('height', currentH);
+					current.fadeOut(250);
+				},
+				error: function(xhr, msg) {
+					$('#wrapper>#main>.ajax').html('<h2>'+msg+'</h2>');
+				},
+				success: function(data) {
+					var open = $(data).find('div.ajax');
+					
+					setTimeout(function() {
+						$('#main>.ajax').html(open.html());
+//						hideSidebar();
+						setModal();
+					}, 250);
+					
+					setTimeout(function() {
+						wrapper.animate({
+							height: $('div.ajax').height()
+						}, 250, function() {
+							current.fadeIn(250);
+							wrapper.removeAttr('style');
+						});
+					}, 500);
+				}
+			});
+			return false;
+		});
+		
+		function jsddm_open() {
+			jsddm_canceltimer();
+			jsddm_close();
+			ddmenuitem = $(this).find('ul').eq(0).css('display', 'block');
+		}
+
+		function jsddm_close() {
+			if (ddmenuitem)
+				ddmenuitem.css('display', 'none');
+		}
+
+		function jsddm_timer() {
+			closetimer = window.setTimeout(jsddm_close, timeout);
+		}
+
+		function jsddm_canceltimer() {
+			if (closetimer) {
+				window.clearTimeout(closetimer);
+				closetimer = null;
+			}
+		}
+		
+		function hideSidebar() {
+			$('#sidebar').css('display','none');
+		}
+
+		// START fancybox functions
+		function setModal() {
+			$('.modal').fancybox({
+				'hideOnOverlayClick' : false,
+				'scrolling' : 'no',
+				'showCloseButton' : false,
+				'type' : 'ajax',
+				'ajax' : {
+					dataFilter : function(data) {
+						return $(data).find('#main>.ajax');
+					}
+				},
+				'onComplete' : function() {
+					var fc = $('#fancybox-content');
+		
+					if (fc.find('form#add_user') != null)
+						validateAddUser();
+					if (fc.find('form#edit_user') != null)
+						validateEditUser();
+					if (fc.find('form#form_country') != null)
+						validateCountry();
+					if (fc.find('form#form_location') != null)
+						validateLocation();
+					if (fc.find('form#add_staff') != null) {
+						setTabbedForm();
+						setTabBinding();
+					}
+				}
+			});
+		}
+		
+		// set default active tab in staff form
+		function setTabbedForm() {
+			$('div[id!=personal].info').addClass('tab_hide').css('display','none');
+		}
+
+		function setTabBinding() {
+			$('ul.tabs a').click(function() {
+				var linkId = $(this).attr('href'),
+					form = $(this).parents('form'),
+					wrapper = form.find('#info_container'),
+					current = form.find('div.info:not(:hidden)'),
+					currenth = current.height(),
+					open = form.find('div#' + linkId + '.info'),
+					openh = open.height();
+				
+				wrapper.css('height', currenth+16);
+				current.fadeOut(500, function() {
+					wrapper.animate({
+							height:openh+16
+						}, 500, function() {
+							open.fadeIn(500, function() {
+								wrapper.removeAttr('style');
+							}).removeClass('tab_hide');
+					});
+				}).addClass('tab_hide');
+			});
+		}
+		
+		// form add user
+		function validateAddUser() {
+			$('form#add_user').validate({
+				rules : {
+					name : {
+						required : true,
+						maxlength : 50,
+						minlength : 3
+					},
+					email : {
+						required : true,
+						email : true
+					},
+					password : {
+						required : true,
+						minlength : 3
+					},
+					password2 : {
+						required : true,
+						equalTo : "#password"
+					}
+				}
+			});
+		}
+
+		// form edit user
+		function validateEditUser() {
+			$('form#edit_user').validate({
+				rules : {
+					name : {
+						required : true,
+						maxlength : 50,
+						minlength : 3
+					},
+					email : {
+						required : true,
+						email : true
+					},
+					password : {
+						minlength : 3
+					},
+					password2 : {
+						required : '#password:filled',
+						equalTo : '#password'
+					}
+				}
+			});
+		}
+
+		// form country
+		function validateCountry() {
+			$('form#form_country').validate({
+				rules : {
+					name : {
+						required : true,
+						maxlength : 30,
+						minlength : 3
+					}
+				}
+			});
+		}
+
+		function validateLocation() {
+			$('form#form_location').validate({
+				rules : {
+					locName : {
+						required : true,
+						maxlength : 30,
+						minlength : 3
+					}
+				}
+			});
+		}
+	});
+
+	function closeSubmenu() {
+		if (submenu != null) {
+			submenu.slideUp('fast');
+			submenu = null;
+		}
+	}
+
+	function runTimeout() {
+		if (submenu != null)
+			setTimeout(closeSubmenu, 500);
+	}
+
+	$('#menubar>ul>li').hover(openSubmenu, runTimeout);
+	// END menubar function
+	
+	// START fancybox functions
+	$('.modal').fancybox({
+		'scrolling': 'no',
+		'showCloseButton': false,
+		'type': 'ajax',
+		'ajax': {
+			dataFilter: function(data) {
+				return $(data).find('#main')[0];
+			}
+		},
+		'onComplete': function() {
+			var fc = $('#fancybox-content');
+				
+			if (fc.find('form#add_user') != null)
+				validateAddUser();
+			if (fc.find('form#edit_user') != null)
+				validateEditUser();
+			if (fc.find('form#form_country') != null)
+				validateCountry();
+			if (fc.find('form#form_location') != null)
+				validateLocation();
+			if (fc.find('form#add_position') != null)
+				validateAddPosition();
+			if (fc.find('form#edit_position') != null)
+				validateEditPosition();
+			if (fc.find('form#add_project') != null)
+				validateAddProject();
+			if (fc.find('form#edit_project') != null)
+				validateEditProject();
+			if (fc.find('form#add_skill') != null)
+				validateAddSkill();
+			if (fc.find('form#edit_skill') != null)
+				validateEditSkill();
+		}
+	});
+	
+	// Form validation
+//	$.validator.setDefaults({
+//		submitHandler: function() {
+//			var data = $(this).serialize();
+//			alert('Form submitted!\nData: ' + data);
+//		}
+//	});
+	
+	// form add user
+	function validateAddUser() {
+		$('form#add_user').validate({
+			rules: {
+				name: {
+					required: true,
+					maxlength: 50,
+					minlength: 3
+				},
+				email: {
+					required: true,
+					email: true
+				},
+				password: {
+					required: true,
+					minlength: 3
+				},
+				password2: {
+					required: true,
+					equalTo: "#password"
+				}
+			}
+		});
+	}
+	
+	// form edit user
+	function validateEditUser() {
+		$('form#edit_user').validate({
+			rules: {
+				name: {
+					required: true,
+					maxlength: 50,
+					minlength: 3
+				},
+				email: {
+					required: true,
+					email: true
+				},
+				password: {
+					minlength: 3
+				},
+				password2: {
+					required: '#password:filled',
+					equalTo: '#password'
+				}
+			}
+		});
+	}
+	
+	// form country
+	function validateCountry() {
+		$('form#form_country').validate({
+			rules: {
+				name: {
+					required: true,
+					maxlength: 30,
+					minlength: 3
+				}
+			}
+		});
+	}
+	
+	function validateLocation() {
+		$('form#form_location').validate({
+			rules: {
+				locName: {
+					required: true,
+					maxlength: 30,
+					minlength: 3
+				}
+			}
+		});
+	}
+	
+	function validateAddPosition() {
+		$('form#add_position').validate({
+			rules: {
+				posName: {
+					required: true,
+					maxlength: 20				
+				},
+				posDesc: {
+					maxlength: 150					
+				}
+			}
+		});
+	}
+	
+	function validateEditPosition() {
+		$('form#edit_position').validate({
+			rules: {
+				posName: {
+					required: true,
+					maxlength: 20				
+				},
+				posDesc: {
+					maxlength: 150					
+				}
+			}
+		});
+	}
+	
+	function validateAddProject() {
+		$('form#add_project').validate({
+			rules: {
+				name: {
+					required: true,
+					maxlength: 50				
+				}
+			}
+		});
+	}
+	
+	function validateEditProject() {
+		$('form#edit_project').validate({
+			rules: {
+				name: {
+					required: true,
+					maxlength: 50				
+				}
+			}
+		});
+	}
+	
+	function validateAddSkill() {
+		$('form#add_skill').validate({
+			rules: {
+				sklName: {
+					required: true,
+					maxlength: 30				
+				}
+			}
+		});
+	}
+	
+	function validateEditSkill() {
+		$('form#edit_skill').validate({
+			rules: {
+				sklName: {
+					required: true,
+					maxlength: 30				
+				}
+			}
+		});
+	}
+});

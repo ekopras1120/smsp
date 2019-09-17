@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap>
+
+	<resultMap class="smsp.bean.Univ" id="univResult">
+		<result property="univId" column="univ_id"/>
+		<result property="univName" column="univ_name"/>
+		<result property="univAddress" column="univ_address"/>
+	</resultMap>
+	
+	<!-- hitung total list -->
+	<select id="countUniv" resultClass="int">
+		SELECT COUNT(univ_id) FROM university 
+	</select>
+	
+	<!-- menampilkan list daftar univeristas -->
+	<select id="getUnivAll" resultMap="univResult">
+		SELECT *
+		FROM university
+		ORDER BY univ_name ASC
+	</select>
+	
+	<select id="getUniv" parameterClass="hashmap" resultMap="univResult">
+		SELECT *
+		FROM university
+		LIMIT #offset#, #limit#
+	</select>
+	
+	<select id="getUnvById" parameterClass="int" resultMap="univResult">
+		SELECT *
+		FROM university
+		WHERE univ_id=#id#
+	</select>
+	
+	<insert id="addUniversity" parameterClass="hashmap">
+		INSERT INTO university 
+		VALUE (null,#name#,#address#)
+	</insert>
+	
+	<update id="updtUniversity" parameterClass="hashmap">
+		UPDATE university 
+		
+		SET 
+		univ_name=#name#,
+		univ_address=#address# 
+	
+		WHERE univ_id=#id#
+	</update>
+	
+	<delete id="delUniversity" parameterClass="int">
+		DELETE FROM university WHERE univ_id=#id#
+	</delete>
+	
+	<select id="getSearch" parameterClass="String" resultMap="univResult">
+		SELECT *
+		FROM university
+		WHERE univ_name LIKE '%$search$%'
+	</select>
+	
+</sqlMap>

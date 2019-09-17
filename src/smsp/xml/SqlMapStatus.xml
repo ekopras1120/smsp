@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+	
+<sqlMap>
+	<resultMap class="smsp.bean.Status" id="statusResult"> <!-- id dipanggil di select/update/delete resultMap -->
+		<result property="statusId" column="status_id"/>
+		<result property="statusName" column="status_name"/>
+		<result property="statusDescription" column="status_description"/>
+	</resultMap>
+	
+	<!--  hitung total list  -->
+	<select id="countList" resultClass="int">
+		SELECT COUNT(status_id) 
+		FROM status
+	</select>
+	
+	<select id="getStatusAll" resultMap="statusResult">
+		SELECT *
+		FROM status
+		ORDER BY status_name ASC
+	</select>
+	
+	<!-- menampilkan daftar list -->
+	<select id="getList" parameterClass="hashmap" resultMap="statusResult">
+		SELECT * 
+		FROM status
+		LIMIT #offset#,#limit# <!-- limit dari 0 smpe 5(jml yg ditampilkan) -->
+	</select>
+	
+	<insert id="inStatus" parameterClass="hashmap">
+		INSERT INTO status(status_name, status_description) 
+		VALUE 
+		(#name#,#desc#)
+	</insert>
+	
+	<select id="getStsById" parameterClass="int" resultMap="statusResult">
+		SELECT *
+		FROM status
+		
+		WHERE status_id=#id#
+	</select>
+	
+	<update id="upStatus" parameterClass="hashmap">
+		UPDATE status
+		SET
+		status_name=#status#,
+		status_description=#description#
+		
+		WHERE status_id=#id#
+	</update>
+	
+	<delete id="deltStatus" parameterClass="int">
+		DELETE FROM status
+		WHERE status_id=#id#
+	</delete>
+
+</sqlMap>

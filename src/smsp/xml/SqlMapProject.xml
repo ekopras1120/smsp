@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap>
+
+	<resultMap class="smsp.bean.Project" id="userResult">
+		<result property="projectId" column="project_id"/>
+		<result property="projectName" column="project_name"/>
+		<result property="projectValue" column="project_value"/>
+	</resultMap>
+
+	<select id="countProject" parameterClass="string" resultClass="int">
+		SELECT count(*) FROM project WHERE project_name LIKE '%$name$%'
+	</select>
+
+	
+	<select id="getProjectAll" resultMap="userResult">
+		SELECT * FROM project ORDER BY prj_id ASC
+	</select>
+	
+	<select id="getProjectByName" parameterClass="hashmap" resultMap="userResult">
+		SELECT * 
+		FROM project
+		
+		 WHERE project_name LIKE '%$name$%' ORDER BY project_name ASC 
+		LIMIT #start#,#length#
+	</select>
+	
+	<select id="getProjectById" parameterClass="int" resultMap="userResult">
+		SELECT * 
+		FROM project 	
+		WHERE project_id = #id#
+	</select>
+
+	
+	<insert id="addProject" parameterClass="smsp.bean.Project">
+		INSERT INTO project(project_name, project_value)
+	 	VALUES (#projectName#, #projectValue#)
+	</insert>
+	
+	<update id="update" parameterClass="smsp.bean.Project">
+		UPDATE project 
+		SET 
+		project_id = #projectId#,
+		project_name = #projectName#,
+		project_value = #projectValue#
+			
+		WHERE project_id = #projectId#
+	</update>
+	
+	<delete id="deleteProject" parameterClass="int">
+		DELETE FROM project WHERE project_id = #id#
+	</delete>
+	
+</sqlMap>

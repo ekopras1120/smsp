@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"
+	"http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap>
+	<resultMap class="smsp.bean.Staff" id="staffResult">
+		<result property="staffId" column="stf_id"/>
+		<result property="idStaff" column="id_staff"/>
+		<result property="staffName" column="stf_name"/>
+		<result property="gender" column="gender"/>
+	 	<result property="birthDate" column="stf_birthdate"/> 
+	 	<result property="joinDate" column="join_date"/> 
+	 	<result property="resignDate" column="resign_date"/>
+		<result property="homeAddress" column="stf_address"/>
+		<result property="currentAddress" column="stf_current_address"/>
+		<result property="phoneNumber" column="stf_phone"/>
+		<result property="mobileNumber" column="stf_mobile_phone"/>
+		<result property="photoFilename" column="photo_filename"/>		
+		<result property="univId" column="univ_id"/>
+		<result property="univ" column="univ_name"/>
+		<result property="positionId" column="position_id"/>
+		<result property="position" column="position"/>
+		<result property="statusId" column="status_id"/>	
+		<result property="status" column="status_name"/>	
+		<result property="batchNumber" column="batch_no"/>
+	</resultMap>
+	
+	<resultMap class="smsp.bean.Staff" id="staffTable">
+		<result property="staffId" column="stf_id"/>
+		<result property="idStaff" column="id_staff"/>
+		<result property="staffName" column="stf_name"/>
+		<result property="gender" column="gender"/>
+	 	<result property="birthDate" column="stf_birthdate"/> 
+	 	<result property="joinDate" column="join_date"/> 
+		<result property="homeAddress" column="stf_address"/>
+		<result property="currentAddress" column="stf_current_address"/>
+		<result property="phoneNumber" column="stf_phone"/>
+		<result property="mobileNumber" column="stf_mobile_phone"/>
+		<result property="photoFilename" column="photo_filename"/>		
+		<result property="batchNumber" column="batch_no"/>
+		<result property="univId" column="univ_id"/>
+		<result property="positionId" column="position_id"/>
+		<result property="statusId" column="status_id"/>	
+		<result property="resignDate" column="resign_date"/>
+	</resultMap>
+	
+	<resultMap class="smsp.bean.Skill" id="skillTable">
+		<result property="skillId" column="skill_id"/>
+		<result property="skillName" column="skill_name"/>
+		
+	</resultMap>
+	
+
+<!-- 
+	<resultMap class="smsp.bean.Staff" id="staffReportToResult">
+		<result property="staffId" column="stf_id"/>
+		<result property="staffName" column="stf_name"/>
+	</resultMap>
+	
+	<resultMap class="smsp.bean.StaffSkill" id="userResultStaffSkill">
+		<result property="staffId" column="stf_id"/>
+		<result property="skillId" column="skl_id"/>
+		<result property="skillName" column="skl_name"/>
+	</resultMap>
+	
+	<resultMap class="smsp.bean.StaffInProject" id="userResultStaffProject">
+		<result property="staffId" column="stf_id"/>
+		<result property="projectId" column="prj_id"/>
+		<result property="projectName" column="prj_name"/>
+		<result property="startDate" column="start_date"/>
+		<result property="dueDate" column="due_date"/>
+	</resultMap>
+	-->
+	<select id="countStaff" resultClass="int">
+		SELECT COUNT(stf_id)
+		FROM staff
+	</select>
+  
+	<select id="getStaff" parameterClass="hashmap" resultMap="staffResult">
+		SELECT * 
+		FROM staff 
+		LEFT JOIN university ON university.univ_id = staff.univ_id
+		LEFT JOIN position ON position.position_id = staff.position_id 
+		LEFT JOIN status ON status.status_id = staff.status_id 
+		LIMIT #offset#,#limit#
+	</select>
+	
+	<select id="getSkillStaff" parameterClass="int" resultMap="skillTable">
+		SELECT skill.skill_id, skill.skill_name 
+		FROM staff_skill 
+		JOIN skill ON skill.skill_id = staff_skill.skill_id
+		WHERE staff_skill.stf_id = #staffId#
+	</select>
+	
+	<select id="getNotSkillStaff" parameterClass="int" resultMap="skillTable">
+		SELECT   skill.skill_id, skill.skill_name 
+		FROM skill 
+		LEFT JOIN staff_skill ON skill.skill_id = staff_skill.skill_id
+		WHERE staff_skill.stf_id != #staffId# OR staff_skill.stf_id IS NULL
+	</select>
+	
+	<select id="getStaffById" parameterClass="int" resultMap="staffTable">
+		SELECT *
+		FROM staff	
+		WHERE stf_id=#staffId#
+	</select>
+	
+	<select id="getStaffByIdStaff" parameterClass="String" resultMap="staffTable">
+		SELECT *
+		FROM staff	
+		WHERE id_staff=#idStaff#
+	</select>
+	
+	<insert id="insertStaff" parameterClass="smsp.bean.Staff">
+		INSERT INTO staff 
+		(id_staff,
+		stf_name,
+		gender,
+		stf_birthdate,
+		join_date,
+		stf_address,
+		stf_current_address,
+		stf_phone,
+		stf_mobile_phone,
+		photo_filename,
+		resign_date,
+		batch_no,
+		univ_id,
+		position_id,
+		status_id)
+		
+		VALUES (
+		  #idStaff#,
+		  #staffName#,
+		  #gender#,
+		  #birthDate#,
+		  #joinDate#,
+		  #homeAddress#,
+		  #currentAddress#,
+		  #phoneNumber#,
+		  #mobileNumber#,
+		  #photoFilename#,
+		  #resignDate#,
+		  #batchNumber#,
+		  #univId#,		
+		  #positionId#,
+		  #statusId#)
+	</insert>
+	
+	<insert id="insertStaffSkill" parameterClass="hashmap">
+		INSERT INTO STAFF_SKILL 
+		(stf_id, 
+		skill_id)
+		VALUES
+		(
+		#staffId#,
+		#skillId#
+		)
+	</insert>
+	
+	
+	
+	<delete id="deleteInStaffSkill" parameterClass="int">
+		DELETE FROM staff_skill WHERE stf_id=#staffId#
+	</delete>
+	<delete id="deleteInStaff" parameterClass="int">
+		DELETE FROM staff WHERE stf_id=#StaffId#
+	</delete>
+	
+	<update id="updateStaff" parameterClass="smsp.bean.Staff">
+		UPDATE staff 
+		SET
+			id_staff=#idStaff#,
+			stf_name=#staffName#,
+			gender=#gender#,
+			stf_birthdate=#birthDate#,
+			join_date=#joinDate#,
+			stf_address=#homeAddress#,
+			stf_current_address=#currentAddress#,
+			stf_phone=#phoneNumber#,
+			stf_mobile_phone=#mobileNumber#,
+			photo_filename=#photoFilename#,
+			resign_date=#resignDate#,
+			batch_no=#batchNumber#,
+			univ_id=#univId#,
+			position_id=#positionId#,
+			status_id=#statusId#
+	
+		WHERE stf_id = #staffId#		
+	</update>
+	<!--
+	<select id="getSkillByStaffId" parameterClass="string" resultMap="userResultStaffSkill">
+		SELECT * FROM staff st LEFT JOIN skill sk ON (sk.skl_id = s.skl_id) WHERE stf_id = #stf_id#
+	</select>
+	  
+	<select id="countSearchStaff" parameterClass="string" resultClass="int">
+		SELECT COUNT(stf_id)
+		FROM staff stf
+		LEFT JOIN position p ON ( stf.pos_id = p.pos_id )
+		LEFT JOIN university unv ON (stf.unv_id = unv.unv_id)
+		LEFT JOIN status sts ON (stf.sts_id = sts.sts_id)
+		LEFT JOIN location loc ON (stf.loc_id = loc.loc_id)
+		WHERE stf_name LIKE '%$search$%'
+	</select>
+	
+	<select id="getSearchStaff" parameterClass="smsp.bean.Staff" resultMap="staffResult">
+		SELECT *
+		FROM staff stf
+		LEFT JOIN position p ON ( stf.pos_id = p.pos_id )
+		LEFT JOIN university unv ON (stf.unv_id = unv.unv_id)
+		LEFT JOIN status sts ON ( stf.sts_id = sts.sts_id )
+		LEFT JOIN location loc ON (stf.loc_id = loc.loc_id)
+		
+		WHERE stf_name LIKE '%$staffName$%'
+		AND stf.pos_id=#posId#
+		
+		<isNotNull property="startDate">
+		AND join_date>#startDate#
+		</isNotNull>
+		
+		<isNotNull property="endDate">
+		AND #endDate#>join_date
+		</isNotNull>
+		
+		<isEqual property="stsId" compareValue="0">
+		AND sts.status = 'Resigned'
+		</isEqual>
+		<isEqual property="stsId" compareValue="1">
+		AND sts.status != 'Resigned'
+		</isEqual>
+	</select>
+	
+	
+	
+	<select id="getStaffDataAll" resultMap="staffResult">
+		SELECT *
+		FROM staff stf
+		LEFT JOIN position p ON ( stf.pos_id = p.pos_id )
+		LEFT JOIN university unv ON ( stf.unv_id = unv.unv_id)
+		LEFT JOIN status sts ON ( stf.sts_id = sts.sts_id )
+		LEFT JOIN location loc ON (stf.loc_id = loc.loc_id)
+	</select>
+	
+	<select id="getStaffReportingTo" resultMap="staffReportToResult">
+		SELECT * FROM staff stf 
+		LEFT JOIN position pos ON (stf.pos_id = pos.pos_id) 
+		WHERE NOT position = 'Developer' 
+	</select>
+	
+	
+	
+	<select id="getProjectByStaffId" parameterClass="string" resultMap="userResultStaffProject">
+		SELECT * FROM staff_project sp LEFT JOIN project p ON (sp.prj_id = p.prj_id) WHERE stf_id = #stf_id#
+	</select>
+	
+	<insert id="insertStaff" parameterClass="smsp.bean.Staff">
+		INSERT INTO staff (stf_id, reporting_to_id, stf_name, gender, stf_birthdate, stf_address, stf_current_address, stf_phone, stf_mobile, photo_filename, unv_id, batch_no, join_date, resign_date, resign_reason, sts_id, pos_id, loc_id)
+		VALUES (
+			#staffId#,
+			NULL,
+			#staffName#,
+			#gender#,
+			#birthDate#,
+			#homeAddress#,
+			#currentAddress#,
+			#phoneNumber#,
+			#mobileNumber#,
+			#photoFilename#,
+			#unvId#,
+			#batchNumber#,
+			#joinDate#,
+			NULL,
+			NULL,
+			#stsId#,
+			#posId#,
+			#locId#)
+	</insert>
+	
+	<insert id="insertStaffSkill" parameterClass="smsp.bean.StaffSkill">
+		INSERT INTO staff_skill (ss_id, stf_id, skl_id)
+		VALUES (NULL, #staffId#, #skillId#)
+	</insert>
+	
+	<insert id="insertStaffProject" parameterClass="smsp.bean.StaffInProject">
+		INSERT INTO staff_project (sp_id, stf_id, prj_id, start_date, due_date)
+		VALUES (NULL, #staffId#, #projectId#, #startDate#, #dueDate#)
+	</insert>
+	
+	
+	
+
+	
+	<delete id="delStaff_skill" parameterClass="String">
+		DELETE FROM staff_skill WHERE stf_id=#id#
+	</delete>
+	
+	
+	-->
+</sqlMap>
